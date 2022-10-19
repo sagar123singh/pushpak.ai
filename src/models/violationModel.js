@@ -3,7 +3,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 const violationSchema = new mongoose.Schema({
 
     licensePlateNumber:{
-        type: ObjectId,
+        type: String,
         ref: 'Vehicle',
         required: true,
         trim:true

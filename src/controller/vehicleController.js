@@ -1,9 +1,8 @@
 const vehicleModel= require('../models/vehicleModel')
-const mongoose=require('mongoose')
 
-
-
-
+///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////create Vehicle data///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 const createVehicle=async(req,res)=>{
     try{
         const body =req.body;
@@ -39,6 +38,9 @@ const createVehicle=async(req,res)=>{
 }
 
 
+/////////////////////////////////////////////////////////////////////////////////////////
+///get single Vehicle data with the help of  plate number///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 
 const getVehicleDetails = async (req, res) => {
     try {
@@ -55,6 +57,9 @@ const getVehicleDetails = async (req, res) => {
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////update Vehicle data///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 
 const updateVehicleDetails = async (req, res) => {
     try {
@@ -69,11 +74,7 @@ const updateVehicleDetails = async (req, res) => {
 
         if (!(/^([A-Z|a-z]{2}\s{1}\d{2}\s{1}[A-Z|a-z]{1,2}\s{1}\d{1,4})?([A-Z|a-z]{3}\s{1}\d{1,4})?$/).test(body.licensePlateNumber)) {
             return res.status(400).send({ status: false, message: 'Enter a valid plate number' });
-        }
-
-        
-
-                 
+        }   
         const requiredFields = ['licensePlateNumber', 'manufacturerName', 'model', 'fuelType', 'ownerName', 'rc_status','vehicleColor',];
 
         for (let i = 0; i < requiredFields.length; i++) {
@@ -95,26 +96,31 @@ const updateVehicleDetails = async (req, res) => {
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////delete  Vehicle data///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
 const deleteVehicleDetails = async (req, res) => {
     try {
         const licensePlateNumber = req.query.licensePlateNumber;
-        const body=req.body;
+    
 
-        const VehicleData = await vehicleModel.find({ licensePlateNumber: licensePlateNumber});
-        if (!VehicleData) {
-            return res.status(404).send({ status: false,message: 'vehicle data is not present with this plateNumber'});
+        const VehicleData = await vehicleModel.findOne({ licensePlateNumber,isDeleted:true});
+        if (VehicleData) {
+            return res.status(400).send({ status: false,message: 'vehicle data is already removed'});
         }
         
         const deleteData = await vehicleModel.findOneAndUpdate({licensePlateNumber, isDeleted:false}, { isDeleted: true}, { new: true });
-        return res.status(200).send({status: true,message: 'data deleted successfully !',data: deleteData});
+        return res.status(200).send({status: true,message: 'data deleted successfully !'});
     
 
     } catch (err) {
         return res.status(500).send({status: false,message:'server error',error: err.message  });
     }
 }
-
+///////////////////////////////assigning publicly ///////////////////////////////////
 module.exports.createVehicle=createVehicle
 module.exports.getVehicleDetails=getVehicleDetails
 module.exports.updateVehicleDetails=updateVehicleDetails
 module.exports.deleteVehicleDetails=deleteVehicleDetails
+//////////////////////////////////////////////////////////////////////////////////////////
