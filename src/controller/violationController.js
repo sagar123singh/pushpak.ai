@@ -24,6 +24,13 @@ const createViolationData=async(req,res)=>{
         if (!(/^([A-Z|a-z]{2}\s{1}\d{2}\s{1}[A-Z|a-z]{1,2}\s{1}\d{1,4})?([A-Z|a-z]{3}\s{1}\d{1,4})?$/).test(body.licensePlateNumber)) {
             return res.status(400).send({ status: false, message: 'Enter a valid plate number' });
         }
+
+    
+        let duplicateLicensePlateNumber = await violationModel.findOne({ licensePlateNumber: body.licensePlateNumber })
+        if (duplicateLicensePlateNumber) {
+            return res.status(400).send({ status: false, msg: "license plate already exists" })
+        }
+        
       /////vehicle collection licence plate should be matching with violation licence plate number
         let licensePlateNumber = await vehicleModel.findOne({ licensePlateNumber: body.licensePlateNumber })
         if (licensePlateNumber) {
@@ -69,6 +76,7 @@ const updateViolationDetails = async (req, res) => {
         const licensePlateNumber = req.query.licensePlateNumber;
         const body=req.body;
 
+        if(licensePlateNumber==body.licensePlateNumber){
         const VehicleData = await violationModel.find({ licensePlateNumber: licensePlateNumber});
         if (!VehicleData) {
             return res.status(404).send({ status: false,message: 'violation data is not present with this plateNumber'});
@@ -87,7 +95,9 @@ const updateViolationDetails = async (req, res) => {
 
         const updateVehicleData = await violationModel.findOneAndUpdate(licensePlateNumber, body, { new: true });
         return res.status(200).send({status: true,message: 'field has been updated successfully !',data: updateVehicleData});
-    
+        }else{
+            return res.status(400).send({ status: false, message: 'licence plate number should match' });
+        }
 
     } catch (err) {
         return res.status(500).send({status: false,message:'server error',error: err.message  });

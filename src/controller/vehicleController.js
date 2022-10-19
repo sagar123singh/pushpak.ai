@@ -66,6 +66,7 @@ const updateVehicleDetails = async (req, res) => {
         const licensePlateNumber = req.query.licensePlateNumber;
         const body=req.body;
 
+        if(licensePlateNumber==body.licensePlateNumber){
         const VehicleData = await vehicleModel.find({ licensePlateNumber: licensePlateNumber});
         if (!VehicleData) {
             return res.status(404).send({ status: false,message: 'vehicle data is not present with this plateNumber'});
@@ -75,7 +76,7 @@ const updateVehicleDetails = async (req, res) => {
         if (!(/^([A-Z|a-z]{2}\s{1}\d{2}\s{1}[A-Z|a-z]{1,2}\s{1}\d{1,4})?([A-Z|a-z]{3}\s{1}\d{1,4})?$/).test(body.licensePlateNumber)) {
             return res.status(400).send({ status: false, message: 'Enter a valid plate number' });
         }   
-        const requiredFields = ['licensePlateNumber', 'manufacturerName', 'model', 'fuelType', 'ownerName', 'rc_status','vehicleColor',];
+        const requiredFields = [ 'licensePlateNumber','manufacturerName', 'model', 'fuelType', 'ownerName', 'rc_status','vehicleColor',];
 
         for (let i = 0; i < requiredFields.length; i++) {
             if (body[requiredFields[i]] === undefined) {
@@ -89,7 +90,9 @@ const updateVehicleDetails = async (req, res) => {
         const updateVehicleData = await vehicleModel.findOneAndUpdate(licensePlateNumber, body, { new: true });
         return res.status(200).send({status: true,message: 'field has been updated successfully !',data: updateVehicleData});
     
-
+    }else{
+        return res.status(400).send({ status: false, message: 'licence plate number should match' });
+    }
     } catch (err) {
         return res.status(500).send({status: false,message:'server error',error: err.message  });
     }
